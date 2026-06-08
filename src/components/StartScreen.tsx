@@ -46,6 +46,15 @@ export function StartScreen({ dispatch }: { dispatch: (a: Action) => void }) {
       >
         {t('start.button')}
       </button>
+
+      <a
+        href="https://www.scorpionmasque.com/sites/scorpionmasque.com/files/st_rules01_en_06jun2023.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-xs text-white/50 underline-offset-2 hover:text-white/75 hover:underline transition-colors"
+      >
+        📖 {t('start.rules')}
+      </a>
     </div>
   )
 }

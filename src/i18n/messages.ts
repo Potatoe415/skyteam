@@ -27,6 +27,7 @@ const en: Dict = {
   'start.instructions':
     'Play together on one device. Each round: talk freely, roll the dice, then place them in silence, taking turns. Pass the phone to your teammate when it is their turn.',
   'start.button': 'Start the game',
+  'start.rules': 'Official rules (PDF)',
 
   // Roles
   'role.pilot': 'Pilot',
@@ -130,6 +131,7 @@ const fr: Dict = {
   'start.instructions':
     "Jouez à deux sur le même appareil. À chaque manche : discutez, lancez les dés, puis placez-les en silence à tour de rôle. Passez le téléphone à votre coéquipier quand c'est son tour.",
   'start.button': 'Commencer la partie',
+  'start.rules': 'Règles officielles (PDF)',
 
   'role.pilot': 'Pilote',
   'role.copilot': 'Copilote',
