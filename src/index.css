@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #9bd6f2 0%, #69b9e9 42%, #3f93cf 100%);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+@layer components {
+  /* Brushed-steel cockpit surface, echoing the physical board panel. */
+  .steel-panel {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 30%),
+      linear-gradient(180deg, #aab6bd 0%, #8b98a1 52%, #6f7d87 100%);
+    border: 1px solid rgba(20, 28, 33, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -3px 8px rgba(0, 0, 0, 0.35),
+      0 6px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Darker engraved sub-panel sitting inside a steel panel. */
+  .steel-inset {
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.16)),
+      linear-gradient(180deg, #7f8c95 0%, #69767f 100%);
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Recessed dark cavity used for dice action spaces and gauges. */
+  .cavity {
+    background: linear-gradient(180deg, #11202a 0%, #0a161d 100%);
+    box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.75);
+  }
+
+  /* Engraved label text stamped into the metal. */
+  .engraved {
+    color: #1a2429;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.09em;
+  }
+}
+
+@layer utilities {
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
