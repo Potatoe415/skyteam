@@ -30,6 +30,9 @@ export interface Die {
   owner: Role
   value: DieValue
   placed: boolean
+  // Online only: true when this die belongs to the partner and is not yet
+  // placed, so its value is masked in the per-player redacted view.
+  hidden?: boolean
 }
 
 export interface ApproachSpace {

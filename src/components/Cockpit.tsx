@@ -1,5 +1,6 @@
-import type { Action, GameState } from '../game'
+import type { Action, GameState, Role } from '../game'
 import { usePlacement } from '../hooks/usePlacement'
+import { useI18n } from '../i18n/I18nContext'
 import { CockpitContext } from './cockpit-context'
 import { AltitudeTrack } from './AltitudeTrack'
 import { ApproachTrack } from './ApproachTrack'
@@ -19,10 +20,13 @@ import { SwitchColumns } from './SwitchColumns'
 interface CockpitProps {
   state: GameState
   dispatch: (a: Action) => void
+  // When set, this device controls exactly one role (online play): no device
+  // handoff, and inputs are gated to this role's turn.
+  localRole?: Role
 }
 
-export function Cockpit({ state, dispatch }: CockpitProps) {
-  const { api, needsHandoff, reveal } = usePlacement(state, dispatch)
+export function Cockpit({ state, dispatch, localRole }: CockpitProps) {
+  const { api, needsHandoff, reveal, myTurn } = usePlacement(state, dispatch, localRole)
 
   return (
     <CockpitContext.Provider value={api}>
@@ -45,7 +49,10 @@ export function Cockpit({ state, dispatch }: CockpitProps) {
           </div>
         </main>
 
-        {state.phase === 'placement' && !needsHandoff && <DiceTray />}
+        {state.phase === 'placement' && !needsHandoff && myTurn && <DiceTray />}
+        {state.phase === 'placement' && !myTurn && (
+          <WaitingTurnBanner waitingFor={state.currentPlayer} />
+        )}
 
         {state.phase === 'briefing' && <BriefingOverlay state={state} dispatch={dispatch} />}
         {state.phase === 'roundEnd' && <RoundEndOverlay state={state} dispatch={dispatch} />}
@@ -55,5 +62,20 @@ export function Cockpit({ state, dispatch }: CockpitProps) {
         {needsHandoff && <HandoffOverlay player={state.currentPlayer} onReveal={reveal} />}
       </div>
     </CockpitContext.Provider>
+  )
+}
+
+// Online: non-blocking banner shown while the partner takes their turn.
+function WaitingTurnBanner({ waitingFor }: { waitingFor: Role }) {
+  const { t } = useI18n()
+  return (
+    <div
+      data-id="waiting-turn-banner"
+      className={`sticky bottom-0 z-20 p-3 text-center text-sm font-bold text-white ${
+        waitingFor === 'pilot' ? 'bg-pilot-dark/95' : 'bg-copilot-dark/95'
+      }`}
+    >
+      {t('online.waitingTurn', { role: t(`role.${waitingFor}`) })}
+    </div>
   )
 }

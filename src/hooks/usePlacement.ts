@@ -15,7 +15,10 @@ import type { CockpitApi } from '../components/cockpit-context'
 export function usePlacement(
   state: GameState,
   dispatch: (a: Action) => void,
-): { api: CockpitApi; needsHandoff: boolean; reveal: () => void } {
+  localRole?: Role,
+): { api: CockpitApi; needsHandoff: boolean; reveal: () => void; myTurn: boolean } {
+  const online = localRole != null
+  const myTurn = !online || state.currentPlayer === localRole
   const [viewer, setViewer] = useState<Role | null>(null)
   const [selectedDieId, setSelectedDieId] = useState<string | null>(null)
   const [pendingValue, setPendingValue] = useState<DieValue | null>(null)
@@ -56,7 +59,7 @@ export function usePlacement(
 
   const api: CockpitApi = {
     state,
-    viewer: viewer ?? state.currentPlayer,
+    viewer: localRole ?? viewer ?? state.currentPlayer,
     selectedDieId,
     pendingValue,
     coffeeSpent,
@@ -64,7 +67,7 @@ export function usePlacement(
     rerollMode,
     rerollSelection,
     selectDie: (id) => {
-      if (rerollMode) return
+      if (rerollMode || !myTurn) return
       const die = state.dice[state.currentPlayer].find((d) => d.id === id && !d.placed)
       if (!die) return
       setSelectedDieId(id)
@@ -77,12 +80,13 @@ export function usePlacement(
     },
     canAdjust,
     place: (slotId) => {
-      if (!selectedDie || pendingValue === null) return
+      if (!myTurn || !selectedDie || pendingValue === null) return
       if (!canPlace(state, state.currentPlayer, slotId, pendingValue)) return
       dispatch({ type: 'PLACE_DIE', dieId: selectedDie.id, slotId, value: pendingValue })
       clearSelection()
     },
     toggleRerollMode: () => {
+      if (!myTurn) return
       setRerollMode((m) => !m)
       setSelectedDieId(null)
       setPendingValue(null)
@@ -103,7 +107,9 @@ export function usePlacement(
 
   return {
     api,
-    needsHandoff: state.phase === 'placement' && viewer !== state.currentPlayer,
+    // Online play has no device handoff: each player sees only their own dice.
+    needsHandoff: !online && state.phase === 'placement' && viewer !== state.currentPlayer,
     reveal: () => setViewer(state.currentPlayer),
+    myTurn,
   }
 }

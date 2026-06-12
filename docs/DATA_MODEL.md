@@ -7,18 +7,27 @@ Status: Living document. Update whenever persisted data structure changes.
 ## Source of Truth
 
 Technical_Source: `src/game/types.ts` (TypeScript types) is the executable source of truth for game state.
-There is no database; state is in-memory only and resets on reload.
+- Local (pass-and-play) play: state is in-memory only and resets on reload.
+- Online play: the full `GameState` is persisted server-side in the `games.state`
+  jsonb column (Supabase Postgres). Clients only ever receive a per-player
+  redacted view (`redactStateFor`, `src/game/redact.ts`).
 
 Rule:
-- `src/game/types.ts` defines the canonical shapes.
-- This document is the human/agent-readable map. It must not contradict the types.
+- `src/game/types.ts` defines the canonical game-state shapes.
+- The SQL schema is in `supabase/migrations/0001_init.sql` and is game-agnostic:
+  everything Sky-Team-specific lives inside `games.state` jsonb, not in columns.
+- This document is the human/agent-readable map. It must not contradict either source.
 
 ---
 
 ## Storage Overview
 
-Database_Type: None.
-Persistence_Model: In-memory React state via `useReducer`. No localStorage in v1.
+Database_Type: Supabase Postgres (online mode only). None for local pass-and-play.
+Persistence_Model:
+- Local: in-memory React state via `useReducer`.
+- Online: server-authoritative. `games.state` holds the full state; clients get a
+  redacted view fetched on each realtime tick (`game_events`). RLS locks the
+  sensitive tables to the `service_role` (server actions in `api/`).
 
 ---
 
@@ -65,6 +74,7 @@ Fields:
 | owner | 'pilot' \| 'copilot' | Yes | color |
 | value | 1..6 | Yes | current face value (after coffee mods) |
 | placed | boolean | Yes | placed on a slot this round |
+| hidden | boolean \| undefined | No | Online redacted view only: true for the partner's un-placed dice (value masked) |
 
 ### Entity: ApproachSpace
 
@@ -93,10 +103,66 @@ to translated strings (`src/i18n`):
 
 ---
 
+## Persisted entities (online — Supabase Postgres)
+
+Schema source of truth: `supabase/migrations/0001_init.sql`. Game-agnostic; all
+Sky-Team-specific state lives in `games.state` jsonb.
+
+### Table: games
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | gen_random_uuid() |
+| room_code | text unique | 3 chars [A-Z0-9], join code |
+| game_type | text | 'skyteam' (indexed) |
+| status | text | lobby \| playing \| finished |
+| settings | jsonb | per-game options |
+| state | jsonb | full server-only GameState (incl. hidden dice) |
+| version | integer | tick counter; optimistic-concurrency guard |
+| host_user_id | uuid | creator (anonymous auth user) |
+| created_at | timestamptz | for cron cleanup |
+
+### Table: game_players
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| game_id | uuid FK→games | on delete cascade |
+| seat | smallint | check between 0 and 1 (2-player co-op) |
+| user_id | uuid | Supabase anonymous auth user |
+| display_name | text | nickname |
+| is_bot | boolean | unused (no bots), kept for plumbing |
+| role | text | 'pilot' \| 'copilot' |
+| connected | boolean | presence flag |
+| unique (game_id, seat) | | one player per seat |
+
+### Table: game_events
+| Column | Type | Notes |
+|---|---|---|
+| id | bigint identity PK | |
+| game_id | uuid FK→games | on delete cascade |
+| version | integer | tick value (no secret) |
+| created_at | timestamptz | |
+
+Realtime: `game_events` is in the `supabase_realtime` publication. Clients
+subscribe and refetch their redacted view on each insert.
+
+Cleanup: `pg_cron` job `skyteam_cleanup` deletes games older than 1 day (cascade).
+
+---
+
 ## Access Model
 
 Roles: pilot, copilot. Enforced by slot color constraints in the engine.
 Rules: A die may only be placed on a slot whose color/value constraints it satisfies; mandatory slots (axis, engines) must be filled by round end.
+
+Online access control:
+- RLS on all 3 tables. `games` and `game_players` have NO policy → only the
+  `service_role` (server actions in `api/`) can read/write them.
+- `game_events` has a SELECT policy for any `authenticated` user (anonymous
+  sign-in included). It carries no secret.
+- Server-side guard (`api/_lib/guards.ts`): a player may only place dice when
+  their role equals `state.currentPlayer` (the reducer always acts on
+  `currentPlayer`), preventing a client from playing the partner's dice.
+- Rolls and rerolls are randomized server-side; client-supplied values are ignored.
 
 ---
 
@@ -122,3 +188,14 @@ to `types.ts`.
 Reason: Added language support (EN/FR). The engine must stay locale-free; the UI translates.
 Impact: UI reads codes via `src/i18n`. The selected language persists in `localStorage`
 (`skyteam.lang`); it is UI-only and not part of `GameState`.
+
+## 2026-06-12 — Online multiplayer: Supabase persistence + redacted views
+
+Change: Added Supabase Postgres schema (`supabase/migrations/0001_init.sql`) with
+3 game-agnostic tables (`games`, `game_players`, `game_events`). Added optional
+`hidden?` to `Die` and `redactStateFor()` (`src/game/redact.ts`).
+Reason: Add online 2-player co-op with a server-authoritative model; the partner's
+un-placed dice must stay hidden (Sky Team's restricted-communication rule).
+Impact: Online state lives server-side in `games.state` jsonb; clients receive only
+redacted views. Local pass-and-play is unchanged (still in-memory). RLS locks
+sensitive tables to `service_role`; only `game_events` is client-readable.

@@ -29,6 +29,43 @@ const en: Dict = {
   'start.button': 'Start the game',
   'start.rules': 'Official rules (PDF)',
 
+  // Home screen (local vs online)
+  'home.playLocal': 'Play on this device',
+  'home.localSub': 'Pass-and-play · two players · one screen',
+  'home.playOnline': 'Play online',
+  'home.onlineSub': 'Two devices · one room code',
+
+  // Online lobby
+  'online.title': 'Play online',
+  'online.nickname': 'Your nickname',
+  'online.nicknamePlaceholder': 'e.g. Alex',
+  'online.create': 'Create a game',
+  'online.join': 'Join a game',
+  'online.codeLabel': 'Room code',
+  'online.codeHint': '3 characters · letters or digits',
+  'online.back': 'Back',
+  'online.busy': 'Please wait…',
+  'online.needNickname': 'Enter a nickname first.',
+  'online.needCode': 'Enter a 3-character code.',
+  'online.connecting': 'Connecting…',
+
+  // Waiting room
+  'wait.title': 'Waiting room',
+  'wait.code': 'Room code',
+  'wait.share': 'Share this code with your teammate.',
+  'wait.players': 'Crew',
+  'wait.empty': 'Waiting for a teammate…',
+  'wait.you': '(you)',
+  'wait.yourRole': 'Your role',
+  'wait.start': 'Start the game',
+  'wait.needTwo': 'Waiting for a second player to join…',
+  'wait.waitingHost': 'Waiting for the host to start…',
+  'wait.leave': 'Leave',
+
+  // Online turn indicator
+  'online.waitingTurn': 'Waiting for the {role}…',
+  'online.error': 'Connection problem: {message}',
+
   // Roles
   'role.pilot': 'Pilot',
   'role.copilot': 'Co-Pilot',
@@ -132,6 +169,39 @@ const fr: Dict = {
     "Jouez à deux sur le même appareil. À chaque manche : discutez, lancez les dés, puis placez-les en silence à tour de rôle. Passez le téléphone à votre coéquipier quand c'est son tour.",
   'start.button': 'Commencer la partie',
   'start.rules': 'Règles officielles (PDF)',
+
+  'home.playLocal': 'Jouer en local',
+  'home.localSub': 'Sur un seul écran · deux joueurs · chacun son tour',
+  'home.playOnline': 'Jouer en ligne',
+  'home.onlineSub': 'Deux appareils · un code de partie',
+
+  'online.title': 'Jouer en ligne',
+  'online.nickname': 'Votre pseudo',
+  'online.nicknamePlaceholder': 'ex. Alex',
+  'online.create': 'Créer une partie',
+  'online.join': 'Rejoindre une partie',
+  'online.codeLabel': 'Code de la partie',
+  'online.codeHint': '3 caractères · lettres ou chiffres',
+  'online.back': 'Retour',
+  'online.busy': 'Veuillez patienter…',
+  'online.needNickname': "Saisissez d'abord un pseudo.",
+  'online.needCode': 'Saisissez un code de 3 caractères.',
+  'online.connecting': 'Connexion…',
+
+  'wait.title': "Salle d'attente",
+  'wait.code': 'Code de la partie',
+  'wait.share': 'Partagez ce code avec votre coéquipier.',
+  'wait.players': 'Équipage',
+  'wait.empty': 'En attente d’un coéquipier…',
+  'wait.you': '(vous)',
+  'wait.yourRole': 'Votre rôle',
+  'wait.start': 'Démarrer la partie',
+  'wait.needTwo': 'En attente d’un second joueur…',
+  'wait.waitingHost': "En attente du démarrage par l'hôte…",
+  'wait.leave': 'Quitter',
+
+  'online.waitingTurn': 'En attente du {role}…',
+  'online.error': 'Problème de connexion : {message}',
 
   'role.pilot': 'Pilote',
   'role.copilot': 'Copilote',

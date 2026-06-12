@@ -5,19 +5,22 @@ History lives in `docs/DECISIONS.md` (decisions) and `docs/BACKLOG.md` (tasks).
 
 ---
 
-Status: Playable v1, win confirmed reachable, EN/FR localized, board-faithful cockpit skin.
-Current_Goal: Tune difficulty upward in stages while keeping the game winnable.
+Status: Playable v1 (local + online). Online multiplayer added: server-authoritative on Vercel Functions + Supabase, per-player redacted views. Build clean; 47 tests green; `api/` type-checks.
+Current_Goal: Verify online play end-to-end on two devices, then continue difficulty tuning.
 Next_Actions:
-- Raise traffic gradually (more airplanes per space) and re-confirm winnability.
-- Tune `createYulApproach()` toward the full official base game.
-- Optional: hide opponent dice count, add animations, persistence, more languages.
+- User: run `supabase/migrations/0001_init.sql` on the Supabase project; enable Anonymous auth; set the 4 env vars in Vercel.
+- Test online flow on two devices (create/join via 3-char code, turn handoff, win/lose, restart).
+- IMPORTANT: rotate the service_role key (it was pasted into chat) after testing.
+- Raise traffic gradually and re-confirm winnability; tune `createYulApproach()`.
 
 Open_Questions:
 - Exact YUL approach-track traffic distribution (v1 = gentle approximation in `src/game/config.ts`).
 - Final-round simultaneous-arrival handling is a pragmatic interpretation (see DECISIONS).
+- Online disconnect/reconnect handling not implemented yet (BACKLOG/Next).
 
 Recent_Changes:
-- 2026-06-07 Added full-game golden-path integration test (proves a clean landing). Tuned approach track to an approachable v1.
-- 2026-06-08 Added i18n (EN default + FR) with a splash-screen language switcher (persisted in localStorage). Engine now emits locale-neutral codes; UI translates via `src/i18n`. 38 tests green; build clean; toggle verified in-browser.
-- 2026-06-08 Reskinned UI to match the physical board (`docs/screenshot-skyteam.png`): brushed-steel cockpit, recessed color-coded action tiles with "?" help dots, attitude indicator with compass ticks + spin-out markers, metallic tracks, themed speed gauge, boarding-pass role cards. Presentational only (engine untouched); 38 tests green, build clean, verified in-browser.
-- 2026-06-08 Fixed handoff privacy leak: dice tray no longer renders during a pass-and-play handoff, and the handoff screen is now a fully opaque viewport-cover (`Shell solid`) so the previous player's dice can't show through. Verified in-browser.
+- 2026-06-12 Added online multiplayer: home screen (local/online), lobby (nickname, create/join, 3-char room code), waiting room. Server-authoritative engine in `api/` (create/join/start/view/move) + Supabase (anon auth, RLS, `game_events` realtime ticks, pg_cron cleanup). Redacted per-player views (`src/game/redact.ts`). Local pass-and-play unchanged. Build clean; 47 tests green; `npx tsc -p api` clean.
+- 2026-06-08 Added i18n (EN default + FR) with a splash-screen language switcher (persisted in localStorage). Engine emits locale-neutral codes; UI translates via `src/i18n`.
+- 2026-06-08 Reskinned UI to match the physical board: brushed-steel cockpit, color-coded action tiles, attitude indicator, metallic tracks, themed speed gauge, boarding-pass role cards (presentational only).
+- 2026-06-08 Fixed handoff privacy leak: dice tray hidden during pass-and-play handoff; handoff screen is a fully opaque viewport cover.
+- 2026-06-07 Added full-game golden-path integration test; tuned approach track to an approachable v1.
