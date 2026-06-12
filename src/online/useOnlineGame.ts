@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Action } from '../game'
 import { fetchView, sendMove } from './api'
-import { supabase } from './supabaseClient'
+import { getSupabase } from './supabaseClient'
 import type { GameView } from './types'
 
 export interface OnlineGame {
@@ -27,6 +27,7 @@ export function useOnlineGame(gameId: string, initial: GameView | null): OnlineG
 
   useEffect(() => {
     refresh()
+    const supabase = getSupabase()
     const channel = supabase
       .channel(`game:${gameId}`)
       .on(
