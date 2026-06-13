@@ -3,8 +3,8 @@
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const url = import.meta.env.NEXT_PUBLIC_SUPABASE_URL
+const anonKey = import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 let client: SupabaseClient | null = null
 
@@ -15,7 +15,7 @@ export function getSupabase(): SupabaseClient {
   if (client) return client
   if (!url || !anonKey) {
     throw new Error(
-      'Online play is not configured: set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.',
+      'Online play is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
     )
   }
   client = createClient(url, anonKey)

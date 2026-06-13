@@ -5,7 +5,7 @@ Status: Living document. Always reflects current state.
 ---
 
 ## Now
-- [ ] Apply `supabase/migrations/0001_init.sql` to the Supabase project and set the 4 env vars in Vercel.
+- [ ] Apply `supabase/migrations/0001_init.sql` to the Supabase project and set the 3 env vars in Vercel.
 - [ ] End-to-end test online play on two devices (create/join, turn handoff, win/lose, restart).
 - [ ] Raise difficulty in stages: add traffic / a second airplane per space and re-confirm winnability.
 - [ ] Tune YUL approach-track traffic in `src/game/config.ts` to match the full base game.

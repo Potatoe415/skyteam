@@ -16,11 +16,10 @@ copy .env.example .env   # then fill in your Supabase values
 
 ## Environment variables (online multiplayer)
 Set these in `.env` locally and in the Vercel project settings:
-- `VITE_SUPABASE_URL` — Supabase project URL (exposed to the browser).
-- `VITE_SUPABASE_ANON_KEY` — anon/publishable key (exposed to the browser).
-- `SUPABASE_URL` — same project URL, used by `api/` functions.
-- `SUPABASE_SERVICE_ROLE_KEY` — service_role secret. SERVER ONLY. Never expose; never commit.
-Also enable Anonymous sign-in in Supabase (Auth → Providers → Anonymous).
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL (exposed to the browser and reused by `api/` functions).
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - anon/publishable key (exposed to the browser).
+- `SUPABASE_SERVICE_ROLE_KEY` - service_role secret. SERVER ONLY. Never expose; never commit.
+Also enable Anonymous sign-in in Supabase (Auth -> Providers -> Anonymous).
 
 ## Database (online multiplayer)
 Run the schema once against your Supabase project (re-runnable):

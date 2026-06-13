@@ -106,3 +106,13 @@ Context: User asked to turn the hotseat game into online multiplayer with a home
 Rationale: The engine is already framework-free, so reusing it server-side keeps one rules source of truth. Vercel Functions fit the existing Vite-on-Vercel deploy and import `src/game/` directly. A redacted view models Sky Team's hidden-dice rule; keeping the full state server-only prevents cheating. RLS-locked tables + service_role keep secrets off the client.
 Consequences: Locks in Supabase (Postgres + Auth anon + Realtime) and Vercel Functions. Adds `@supabase/supabase-js` (client + server) and `@vercel/node` (dev). New env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (client) and `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server). Schema is game-agnostic (`supabase/migrations/0001_init.sql`); all game specifics live in `games.state` jsonb. Server guard enforces role == `currentPlayer` for placement, and rolls/rerolls are server-randomized.
 Alternatives_Rejected: Supabase Edge Functions/Deno (engine reuse less direct, splits hosting from the existing Vercel deploy); client-authoritative state over realtime (leaks hidden dice, trivially cheatable); a dedicated long-running game server (overkill for turn-based 2-player co-op).
+
+---
+
+## 2026-06-13 â€” Align Supabase env names with coinchapp
+
+Decision: Rename the shared Supabase env contract to `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`; server code now reads the public project URL directly instead of a separate `SUPABASE_URL`.
+Context: User asked to reuse the same Vercel env variable names as the existing `coinchapp` project.
+Rationale: Matching the other project reduces setup errors and lets the same Supabase values be copied into Vercel without translation. Vite can safely expose `NEXT_PUBLIC_*` when `envPrefix` is configured explicitly.
+Consequences: `skyteam` no longer requires a separate `SUPABASE_URL` variable. Browser code reads `NEXT_PUBLIC_*`, Vercel Functions read `NEXT_PUBLIC_SUPABASE_URL` plus `SUPABASE_SERVICE_ROLE_KEY`, and setup docs now describe 3 required vars instead of 4.
+Alternatives_Rejected: Keep Vite-specific `VITE_*` names (forces per-project translation); support both naming schemes indefinitely (more drift, less clarity).
